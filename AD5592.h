@@ -1,9 +1,23 @@
-/*
- * AD5592.h
- *
- *  Created on: Oct 16, 2016
- *      Author: tolen
- */
+/**
+ * File: AD5592.h
+ * Target: AD5592 
+ * Function: Helper file to improve code readability
+ * Dependancies: 
+ * 		-none
+ * Author: Tom Olenik
+ * Original Date: 15 November 2016
+ * Last Revised Date: 18 November 2016
+ * Release Notes:
+ * 	* Version 1.0.0:
+ * 		- Initial release includes definitions to help make application
+ * 		code more readable when interfacing with an AD5592. 
+ *  * Version 1.0.1:
+ * 		- Line 1 - 20: Added file header info.
+ * 		- Line 28: Commented out include SPI.h. This should be done in
+ * 		application code.
+ * 		- Line 52: Added AD5592_GPIO_READ_INPUT mask for reading digital
+ *  	inputs.
+ **********************************************************************/
 
 #ifndef SOURCES_AD5592_H_
 #define SOURCES_AD5592_H_
@@ -11,7 +25,7 @@
 /**
  * 	Change the #include to use the Serial Peripheral Diver header.
  */
-#include "SPI.h"
+//#include "SPI.h"
 
 /**
  * Define the number of bytes in a standard word for the
@@ -35,6 +49,7 @@
 #define	AD5592_GPIO_WRITE_CONFIG	0x4000	/* Selects which pins are GPIO outputs */
 #define	AD5592_GPIO_WRITE_DATA		0x4800	/* Writes data to the GPIO outputs */
 #define	AD5592_GPIO_READ_CONFIG		0x5000	/* Selects which pins are GPIO inputs */
+#define AD5592_GPIO_READ_INPUT		0x5400	/* Read GPIO inputs */
 #define	AD5592_POWER_DWN_REF_CNTRL	0x5800	/* Powers down DACs and enables/disables the reference */
 #define	AD5592_GPIO_DRAIN_CONFIG	0x6000	/* Selects open-drain or push/pull for GPIO outputs */
 #define AD5592_THREE_STATE_CONFIG	0x6800	/* Selects which pins are three-state */
