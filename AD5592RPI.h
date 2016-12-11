@@ -1,4 +1,4 @@
-/**
+/*********************************************************************
  * File: AD5592RPI.h
  * Target: AD5592 on a Raspberry Pi
  * Function: AD5592 device driver for Raspberry Pi
