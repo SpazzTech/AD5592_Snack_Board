@@ -7,11 +7,13 @@
  * 		-AD5592RPI.h
  * Author: Tom Olenik
  * Original Date: 11 December 2016
- * Last Revised Date: 11 December 2016
+ * Last Revised Date: 17 December 2016
  * Release Notes:
- * 	* Version 1.0.0: 15 Novemver 2016
+ * 	* Version 1.0.0: 11 December 2016
  * 		- Initial release derrived from from AD5592.h version 1.0.2 and 
  * 			AD5592SnackATP.c version 1.0.0. 
+ *	* Version 1.0.1: 17 December 2016
+ 		- Several fixes. Version 1.0.0 didn't work. Don't use it.
  **********************************************************************/
 
 #include "AD5592RPI.h"
@@ -47,17 +49,19 @@ void makeWord(char eightBits[], AD5592_WORD sixteenBits)
 /**
  * Select the SPI channel.
  * Parameters:
- * 	ch = channel number 
+ * 	ch = channel number
  */
 void setAD5592Ch(int ch)
 {
 	switch(ch){
 		case 0:
-			bcm2835_spi_chipSelect(CHANNEL0);        
-			bcm2835_spi_setChipSelectPolarity(CHANNEL0, LOW);  
+			bcm2835_spi_chipSelect(CHANNEL0);
+			bcm2835_spi_setChipSelectPolarity(CHANNEL0, LOW);
+			break;
 		case 1:
-			bcm2835_spi_chipSelect(CHANNEL1);        
-			bcm2835_spi_setChipSelectPolarity(CHANNEL1, LOW); 
+			bcm2835_spi_chipSelect(CHANNEL1);
+			bcm2835_spi_setChipSelectPolarity(CHANNEL1, LOW);
+			break;
 	}
 }
 
@@ -72,7 +76,7 @@ void setAD5592Ch(int ch)
 	 uint16_t count = millivolts * .819f;
 	 return count;
  }
- 
+
 /**
  * Convert a digital value to voltage based upon assumptions of
  * 0 - 5V input and 12 bit ADC/DAC.
@@ -89,9 +93,9 @@ uint16_t d2a(uint16_t count)
  * Set pins to digital outputs.
  * Parameter: Pins as bit mask
  */
-void setAsDigitalOut(AD5592_WORD pins)
+void setAsDigitalOut(uint8_t pins)
 {
-	digitalOutPins = pins;	/* Log which pins are configured */ 
+	digitalOutPins = pins;	/* Log which pins are configured */
 	makeWord(spiOut, AD5592_GPIO_WRITE_CONFIG | pins); 	/* Make the word */
 	bcm2835_spi_transfern(spiOut, sizeof(spiOut));		/* Send it */
 }
@@ -100,9 +104,9 @@ void setAsDigitalOut(AD5592_WORD pins)
  * Set pins to a digital inputs.
  * Parameter: Pins as bit mask
  */
- void setAsDigitalIn(AD5592_WORD pins)
+ void setAsDigitalIn(uint8_t pins)
 {
-	digitalInPins = pins;	/* Log which pins are configured */ 
+	digitalInPins = pins;	/* Log which pins are configured */
 	makeWord(spiOut, AD5592_GPIO_READ_CONFIG | pins); 	/* Make the word */
 	bcm2835_spi_transfern(spiOut, sizeof(spiOut));		/* Send it */
 }
@@ -111,9 +115,9 @@ void setAsDigitalOut(AD5592_WORD pins)
  * Set pins to analog outputs.
  * Parameter: Pins as bit mask
  */
-void setAsDAC(AD5592_WORD pins)
+void setAsDAC(uint8_t pins)
 {
-	analogOutPins = pins;	/* Log which pins are configured */ 
+	analogOutPins = pins;	/* Log which pins are configured */
 	makeWord(spiOut, AD5592_DAC_PIN_SELECT | pins); 	/* Make the word */
 	bcm2835_spi_transfern(spiOut, sizeof(spiOut));		/* Send it */
 	bcm2835_delay(SHORT_DELAY);
@@ -123,7 +127,7 @@ void setAsDAC(AD5592_WORD pins)
  * Set pins to a analog inputs.
  * Parameter: Pins as bit mask
  */
- void setAsADC(AD5592_WORD pins)
+ void setAsADC(uint8_t pins)
 {
 	analogInPins = pins;	/* Log which pins are configured */
 	makeWord(spiOut, AD5592_ADC_PIN_SELECT | pins);		/* Make the word */
@@ -173,7 +177,7 @@ uint8_t getDigitalIn(uint8_t pins)
 	}
 	spiComs(AD5592_GPIO_READ_INPUT | pins);
 	spiComs(AD5592_NOP);
-	
+
 	return spiIn[1];
 }
 
@@ -195,6 +199,28 @@ void setAnalogOut(uint8_t pin, uint16_t milivolts)
 }
 
 /**
+ * Get analog input value
+ * Parameters:
+ * 	Pin number to to get value for as number (0 to 7)
+ * Returns:
+ * 	milivolts (assumes 5V reference)
+ */
+uint16_t getAnalogIn(uint8_t pin)
+{
+	if(!((analogInPins >> pin ) & 0x1))
+	{
+		setAsADC(analogInPins | (0x1 << pin));
+	}
+	spiComs(AD5592_ADC_READ | (0x1 << pin));
+	spiComs(AD5592_NOP);
+	spiComs(AD5592_NOP);
+	
+	uint16_t result = ((spiIn[0] << 8) & 0x0F00) | (spiIn[1] & 0xFF);
+	/* Return result */
+	return d2a(result);
+}
+
+/**
  * Initialize the SPI for using the AD5592. Does not set channel. Do that
  * after calling this function by calling setAD5592Ch().
  * Parameters:
@@ -211,10 +237,10 @@ void AD5592_Init()
 
     /* Set SPI bit order */
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);      // The default
-    
+
     /* Set SPI polarity and phase */
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE1);                   // Mode 1
-    
+
     /* Set SPI clock */
     bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16); 	  // 16 = 64ns = 15.625MHz
 }
