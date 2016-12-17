@@ -6,11 +6,13 @@
  * 		-bcm2835.h v1.20 2015/03/31 04:55:41
  * Author: Tom Olenik
  * Original Date: 11 December 2016
- * Last Revised Date: 11 December 2016
+ * Last Revised Date: 17 December 2016
  * Release Notes:
  * 	* Version 1.0.0: 11 December 2016
  * 		- Initial release derrived from from AD5592.h version 1.0.2 and 
  * 			AD5592SnackATP.c version 1.0.0. 
+ *  * Version 1.0.1: 17 December 2016
+ *   - Several fixes. Version 1.0.0 didn't work. Don't use it. 
  **********************************************************************/
 
 #ifndef SOURCES_AD5592RPI_H_
@@ -52,14 +54,14 @@
 /**
  * Pins
  */
-#define AD5592_IO0	0x0001
-#define AD5592_IO1	0x0002
-#define AD5592_IO2	0x0004
-#define	AD5592_IO3	0x0008
-#define	AD5592_IO4	0x0010
-#define	AD5592_IO5	0x0020
-#define	AD5592_IO6	0x0040
-#define	AD5592_IO7	0x0080
+#define AD5592_IO0	0x01
+#define AD5592_IO1	0x02
+#define AD5592_IO2	0x04
+#define	AD5592_IO3	0x08
+#define	AD5592_IO4	0x10
+#define	AD5592_IO5	0x20
+#define	AD5592_IO6	0x40
+#define	AD5592_IO7	0x80
 
 #define AD5592_PIN_SELECT_MASK		0x00FF	/* Pin select bit mask */
 
@@ -110,7 +112,7 @@ void makeWord(char eightBits[], AD5592_WORD sixteenBits);
 /**
  * Select the SPI channel.
  * Parameters:
- * 	ch = channel number 
+ * 	ch = channel number
  */
 void setAD5592Ch(int ch);
 
@@ -134,26 +136,26 @@ uint16_t d2a(uint16_t count);
  * Set pins to digital outputs.
  * Parameter: Pins as bit mask
  */
-void setAsDigitalOut(AD5592_WORD pins);
+void setAsDigitalOut(uint8_t pins);
 
 /**
  * Set pins to a digital inputs.
  * Parameter: Pins as bit mask
  */
- void setAsDigitalIn(AD5592_WORD pins);
- 
+ void setAsDigitalIn(uint8_t pins);
+
 /**
  * Set pins to analog outputs.
  * Parameter: Pins as bit mask
  */
-void setAsDAC(AD5592_WORD pins);
+void setAsDAC(uint8_t pins);
 
 /**
  * Set pins to a analog inputs.
  * Parameter: Pins as bit mask
  */
- void setAsADC(AD5592_WORD pins);
- 
+ void setAsADC(uint8_t pins);
+
 /**
  * SPI communications
  * Parameter:
@@ -168,7 +170,7 @@ void spiComs(AD5592_WORD command);
  * 	State to be output as bit mask
  */
 void setDigitalOut(uint8_t pins, uint8_t states);
- 
+
 /**
  * Get the digital input states
  * Parameter:
@@ -193,7 +195,8 @@ void setAnalogOut(uint8_t pin, uint16_t milivolts);
  * Returns:
  * 	milivolts (assumes 5V reference)
  */
- 
+uint16_t getAnalogIn(uint8_t pins);
+
 /**
  * Initialize the SPI for using the AD5592. Does not set channel. Do that
  * after calling this function by calling setAD5592Ch().
